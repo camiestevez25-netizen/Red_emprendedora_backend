@@ -34,7 +34,7 @@ public class EventoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EventoResponseDTO> obtenerPOrId(@PathVariable Integer id) {
+    public ResponseEntity<EventoResponseDTO> obtenerPorId(@PathVariable Integer id) {
         return ResponseEntity.ok(eventoService.obtenerPorId(id));
     }
 

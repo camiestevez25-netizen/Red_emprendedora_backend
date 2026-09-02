@@ -2,7 +2,6 @@ package com.desarrolloweb.redemprendedora.service;
 
 import com.desarrolloweb.redemprendedora.dto.EventoRequestDTO;
 import com.desarrolloweb.redemprendedora.dto.EventoResponseDTO;
-import com.desarrolloweb.redemprendedora.dto.EventoUpdateDTO;
 import com.desarrolloweb.redemprendedora.entity.Evento;
 import com.desarrolloweb.redemprendedora.enums.EstadoEvento;
 import com.desarrolloweb.redemprendedora.exception.NoEncontradoException;
@@ -11,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.math.BigDecimal;
 
 @Service
 public class EventoService {
@@ -27,7 +27,11 @@ public class EventoService {
         evento.setFechaInicio(dto.getFechaInicio());
         evento.setFechaFin(dto.getFechaFin());
         evento.setEstado(EstadoEvento.ACTIVO.getValor());
-        evento.setPrecioEntrada(dto.getPrecioEntrada());
+
+        BigDecimal precio = (dto.getPrecioEntrada() != null) ? dto.getPrecioEntrada() : BigDecimal.ZERO;
+        evento.setPrecioEntrada(precio);
+
+        evento.setMetrosCuadrados(dto.getMetrosCuadrados());
 
         Evento guardado = eventoRepository.save(evento);
         return mapearAResponse(guardado);
@@ -79,6 +83,7 @@ public class EventoService {
         dto.setFechaInicio(evento.getFechaInicio());
         dto.setFechaFin(evento.getFechaFin());
         dto.setEstado(evento.getEstado());
+        dto.setPrecioEntrada(evento.getPrecioEntrada());
         dto.setMetrosCuadrados(evento.getMetrosCuadrados());
         return dto;
     }
