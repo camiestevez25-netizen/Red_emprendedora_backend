@@ -13,7 +13,7 @@ public class UsuarioRequestDTO {
     private Long idEvento;
     private Long idLocalidad;
 
-    //Getters y Setters
+    // Getters y Setters
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
 
@@ -29,8 +29,8 @@ public class UsuarioRequestDTO {
     public String getContrasena() { return contrasena; }
     public void setContrasena(String contrasena) { this.contrasena = contrasena; }
 
-    public String getNombreEmprendimiento() {return nombreEmprendimiento; }
-    public void setNombreEmprendimiento(String nombreEmprendimiento) { this.nombreEmprendimiento = nombreEmprendimiento;}
+    public String getNombreEmprendimiento() { return nombreEmprendimiento; }
+    public void setNombreEmprendimiento(String nombreEmprendimiento) { this.nombreEmprendimiento = nombreEmprendimiento; }
 
     public String getTipoEmprendimiento() { return tipoEmprendimiento; }
     public void setTipoEmprendimiento(String tipoEmprendimiento) { this.tipoEmprendimiento = tipoEmprendimiento; }
@@ -39,7 +39,7 @@ public class UsuarioRequestDTO {
     public void setInstagram(String instagram) { this.instagram = instagram; }
 
     public Long getIdUsuarioRol() { return idUsuarioRol; }
-    public void setIdUsuarioRol( Long idUsuarioRol) { this.idUsuarioRol = idUsuarioRol; }
+    public void setIdUsuarioRol(Long idUsuarioRol) { this.idUsuarioRol = idUsuarioRol; }
 
     public Long getIdEvento() { return idEvento; }
     public void setIdEvento(Long idEvento) { this.idEvento = idEvento; }

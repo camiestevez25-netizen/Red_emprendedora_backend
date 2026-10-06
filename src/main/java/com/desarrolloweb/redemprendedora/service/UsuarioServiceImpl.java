@@ -1,13 +1,11 @@
 package com.desarrolloweb.redemprendedora.service;
 
-
 import com.desarrolloweb.redemprendedora.dto.UsuarioRequestDTO;
 import com.desarrolloweb.redemprendedora.dto.UsuarioResponseDTO;
 import com.desarrolloweb.redemprendedora.entity.Usuario;
-import com.desarrolloweb.redemprendedora.exeption.ResourceNotFoundException;
+import com.desarrolloweb.redemprendedora.exception.ResourceNotFoundException;
 import com.desarrolloweb.redemprendedora.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.stream.Collectors;
 

@@ -3,21 +3,21 @@ package com.desarrolloweb.redemprendedora.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table (name = "usuario")
+@Table(name = "usuario")
 public class Usuario {
 
-    @id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_usuario")
     private Long idUsuario;
 
-    @Column(name = "nombre", length = 50, nullable =false)
+    @Column(name = "nombre", length = 50, nullable = false)
     private String nombre;
 
-    @Column(name = "email", length = 15, nullable = false)
+    @Column(name = "email", length = 50, nullable = false)
     private String email;
 
-    @Column(name = "telefono", length = 50, nullable = false)
+    @Column(name = "telefono", length = 15, nullable = false)
     private String telefono;
 
     @Column(name = "direccion", length = 50, nullable = false)
@@ -44,12 +44,12 @@ public class Usuario {
     @Column(name = "id_localidad")
     private Long idLocalidad;
 
-    public Usuario(){
-
+    public Usuario() {
     }
-    //Getters y Setters
-    public Long getIdUsuario(){ return idUsuario; }
-    public void setIdUsuario(Long idUsuario) {this.idUsuario = idUsuario; }
+
+    // Getters y Setters
+    public Long getIdUsuario() { return idUsuario; }
+    public void setIdUsuario(Long idUsuario) { this.idUsuario = idUsuario; }
 
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
@@ -66,8 +66,8 @@ public class Usuario {
     public String getContrasena() { return contrasena; }
     public void setContrasena(String contrasena) { this.contrasena = contrasena; }
 
-    public String getNombreEmprendimiento() {return nombreEmprendimiento; }
-    public void setNombreEmprendimiento(String nombreEmprendimiento) { this.nombreEmprendimiento = nombreEmprendimiento;}
+    public String getNombreEmprendimiento() { return nombreEmprendimiento; }
+    public void setNombreEmprendimiento(String nombreEmprendimiento) { this.nombreEmprendimiento = nombreEmprendimiento; }
 
     public String getTipoEmprendimiento() { return tipoEmprendimiento; }
     public void setTipoEmprendimiento(String tipoEmprendimiento) { this.tipoEmprendimiento = tipoEmprendimiento; }
@@ -76,7 +76,7 @@ public class Usuario {
     public void setInstagram(String instagram) { this.instagram = instagram; }
 
     public Long getIdUsuarioRol() { return idUsuarioRol; }
-    public void setIdUsuarioRol( Long idUsuarioRol) { this.idUsuarioRol = idUsuarioRol; }
+    public void setIdUsuarioRol(Long idUsuarioRol) { this.idUsuarioRol = idUsuarioRol; }
 
     public Long getIdEvento() { return idEvento; }
     public void setIdEvento(Long idEvento) { this.idEvento = idEvento; }
