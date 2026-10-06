@@ -21,7 +21,7 @@ public class Evento {
     @Column(name = "fecha_fin", nullable = false, length = 25)
     private String fechaFin;
 
-    @Column(name = "estado", nullable = false, length = 25)
+    @Column(name = "estado", nullable = false, length = 50)
     private String estado;
 
     @Column(name = "precio_entrada", nullable = false, precision = 10, scale = 2)

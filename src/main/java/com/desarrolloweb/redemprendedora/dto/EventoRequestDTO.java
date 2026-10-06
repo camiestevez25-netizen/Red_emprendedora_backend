@@ -2,10 +2,12 @@ package com.desarrolloweb.redemprendedora.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 
 public class EventoRequestDTO {
     @NotBlank(message = "El nombre es obligatorio")
+    @Size(max = 50, message = "El nombre no puede superar los 50 caracteres")
     private String nombre;
 
     @NotBlank(message = "La fecha de inicio es obligatoria")
@@ -18,6 +20,7 @@ public class EventoRequestDTO {
     private BigDecimal precioEntrada;
 
     @NotBlank(message = "Los metros cuadrados son obligatorios")
+    @Size(max = 25, message = "Los metros cuadrados no pueden superar los 25 caracteres")
     private String metrosCuadrados;
 
     public EventoRequestDTO() {}

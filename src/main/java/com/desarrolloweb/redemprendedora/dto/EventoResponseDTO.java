@@ -12,6 +12,8 @@ public class EventoResponseDTO {
     private String fechaFin;
     private String estado;
     private BigDecimal precioEntrada;
+    private boolean entradaGratuita;
+    private String precioEntradaTexto;
     private String metrosCuadrados;
 
     public EventoResponseDTO() {}
@@ -33,6 +35,12 @@ public class EventoResponseDTO {
 
     public BigDecimal getPrecioEntrada() { return precioEntrada; }
     public void setPrecioEntrada(BigDecimal precioEntrada) { this.precioEntrada = precioEntrada; }
+
+    public boolean isEntradaGratuita() { return entradaGratuita; }
+    public void setEntradaGratuita(boolean entradaGratuita) { this.entradaGratuita = entradaGratuita; }
+
+    public String getPrecioEntradaTexto() { return precioEntradaTexto; }
+    public void setPrecioEntradaTexto(String precioEntradaTexto) { this.precioEntradaTexto = precioEntradaTexto; }
 
     public String getMetrosCuadrados() { return metrosCuadrados; }
 

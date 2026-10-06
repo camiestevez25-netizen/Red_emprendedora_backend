@@ -1,13 +1,25 @@
 package com.desarrolloweb.redemprendedora.dto;
 
+import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Size;
+
 import java.math.BigDecimal;
 
 public class EventoUpdateDTO {
 
+    // Todos los campos son opcionales: solo se modifica lo que venga en el body
+
+    @Size(max = 50, message = "El nombre no puede superar los 50 caracteres")
     private String nombre;
+
     private String fechaInicio;
+
     private String fechaFin;
+
+    @PositiveOrZero(message = "El precio de la entrada no puede ser negativo")
     private BigDecimal precioEntrada;
+
+    @Size(max = 25, message = "Los metros cuadrados no pueden superar los 25 caracteres")
     private String metrosCuadrados;
 
     public EventoUpdateDTO() {

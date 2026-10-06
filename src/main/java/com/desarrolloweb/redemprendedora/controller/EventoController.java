@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/eventos")
@@ -41,14 +42,15 @@ public class EventoController {
     @PutMapping("/{id}")
     public ResponseEntity<EventoResponseDTO> actualizar(
             @PathVariable Integer id,
-            @RequestBody EventoRequestDTO dto) {
+            @Valid @RequestBody EventoUpdateDTO dto) {
         return ResponseEntity.ok(eventoService.actualizar(id, dto));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> cancelar(@PathVariable Integer id) {
-        eventoService.cancelar(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Map<String, String>> eliminar(@PathVariable Integer id) {
+        String mensaje = eventoService.eliminar(id);
+        return ResponseEntity.ok(Map.of("mensaje", mensaje));
     }
+
 
 }
