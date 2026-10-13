@@ -168,7 +168,7 @@ public class EventoService {
 
     private EventoResponseDTO mapearAResponse(Evento evento) {
         EventoResponseDTO dto = new EventoResponseDTO();
-        dto.setId(evento.getId());
+        dto.setId(evento.getIdEvento());
         dto.setNombre(evento.getNombre());
         dto.setFechaInicio(evento.getFechaInicio());
         dto.setFechaFin(evento.getFechaFin());

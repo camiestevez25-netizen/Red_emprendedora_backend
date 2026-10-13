@@ -10,7 +10,7 @@ public class Evento {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_evento")
-    private Integer id;
+    private Integer idEvento;
 
     @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
@@ -33,8 +33,8 @@ public class Evento {
     public Evento() {
     }
 
-    public Integer getId() { return id; }
-    public void setId(Integer id) { this.id = id; }
+    public Integer getIdEvento() { return idEvento; }
+    public void setIdEvento(Integer idEvento) { this.idEvento = idEvento; }
 
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
