@@ -21,4 +21,6 @@ public interface StandService {
     StandResponseDTO obtenerEventoPorStand(Integer id);
 
     long contarStandsOcupadosPorEvento(Integer idEvento);
+
+    boolean existeStandConNumeroEnEvento(Integer idEvento, Integer numeroStand);
 }
