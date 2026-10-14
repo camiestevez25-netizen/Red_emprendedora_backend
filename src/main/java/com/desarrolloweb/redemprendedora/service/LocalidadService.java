@@ -28,21 +28,29 @@ public class LocalidadService {
     }
 
     public LocalidadDTO crear(LocalidadDTO dto) {
-        boolean existe = repository.existsByNombreLocalidadAndProvinciaLocalidad(
-                dto.getNombreLocalidad(), dto.getProvinciaLocalidad());
-        if (existe) {
+        String nombre = dto.getNombreLocalidad().trim();
+        String provincia = dto.getProvinciaLocalidad().trim();
+
+        if (repository.existsByNombreLocalidadIgnoreCaseAndProvinciaLocalidadIgnoreCase(nombre, provincia)) {
             throw new IllegalArgumentException("Ya existe esa localidad en esa provincia");
         }
         Localidad localidad = new Localidad();
-        localidad.setNombreLocalidad(dto.getNombreLocalidad());
-        localidad.setProvinciaLocalidad(dto.getProvinciaLocalidad());
+        localidad.setNombreLocalidad(nombre);
+        localidad.setProvinciaLocalidad(provincia);
         return convertirADTO(repository.save(localidad));
     }
 
     public LocalidadDTO actualizar(Long id, LocalidadDTO dto) {
         Localidad localidad = buscarEntidadPorId(id);
-        localidad.setNombreLocalidad(dto.getNombreLocalidad());
-        localidad.setProvinciaLocalidad(dto.getProvinciaLocalidad());
+        String nombre = dto.getNombreLocalidad().trim();
+        String provincia = dto.getProvinciaLocalidad().trim();
+
+        if (repository.existsByNombreLocalidadIgnoreCaseAndProvinciaLocalidadIgnoreCaseAndIdLocalidadNot(
+                nombre, provincia, id)) {
+            throw new IllegalArgumentException("Ya existe esa localidad en esa provincia");
+        }
+        localidad.setNombreLocalidad(nombre);
+        localidad.setProvinciaLocalidad(provincia);
         return convertirADTO(repository.save(localidad));
     }
 
