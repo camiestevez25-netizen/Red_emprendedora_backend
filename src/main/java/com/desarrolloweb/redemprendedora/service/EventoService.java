@@ -9,6 +9,7 @@ import com.desarrolloweb.redemprendedora.exception.NoEncontradoException;
 import com.desarrolloweb.redemprendedora.exception.OperacionInvalidadException;
 import com.desarrolloweb.redemprendedora.repository.EventoRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -123,6 +124,35 @@ public class EventoService {
 
         eventoRepository.delete(evento);
         return "Evento eliminado";
+    }
+
+    // Lo llama StandService cuando se reservva el último stand libre
+    @Transactional
+    public void marcarComoAgotado(Integer idEvento) {
+        Evento evento = buscarOFallar(idEvento);
+
+        if (EstadoEvento.CANCELADO.getValor().equals(evento.getEstado())) {
+            throw new OperacionInvalidadException("No se puede reservar en un evento cancelado.");
+        }
+
+        if (EstadoEvento.AGOTADO.getValor().equals(evento.getEstado())) {
+            return; // ya estaba agotado, no hay nada que cambiar.
+        }
+
+        evento.setEstado(EstadoEvento.AGOTADO.getValor());
+        eventoRepository.save(evento);
+    }
+
+    //Lo llama StandService cuando se libera un stand de un evento agotado
+    @Transactional
+    public void reactivar(Integer idEvento) {
+        Evento evento = buscarOFallar(idEvento);
+
+        //Solo un evento agotado vuelve a estar activo. Si está cancelado, sigue cancelado.
+        if (EstadoEvento.AGOTADO.getValor().equals(evento.getEstado())) {
+            evento.setEstado(EstadoEvento.ACTIVO.getValor());
+            eventoRepository.save(evento);
+        }
     }
 
     // TODO: cuando exista Stand, preguntar al StandRepository si el evento tiene stands reservados
