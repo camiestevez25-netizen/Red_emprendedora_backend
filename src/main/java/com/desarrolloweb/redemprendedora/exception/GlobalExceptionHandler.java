@@ -1,5 +1,6 @@
 package com.desarrolloweb.redemprendedora.exception;
 
+import java.time.LocalDateTime;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -22,5 +23,15 @@ public class GlobalExceptionHandler {
         }
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errores);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
+        Map<String, Object> cuerpo = new HashMap<>();
+        cuerpo.put("timestamp", LocalDateTime.now().toString());
+        cuerpo.put("status", HttpStatus.BAD_REQUEST.value());
+        cuerpo.put("mensaje", ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(cuerpo);
     }
 }
