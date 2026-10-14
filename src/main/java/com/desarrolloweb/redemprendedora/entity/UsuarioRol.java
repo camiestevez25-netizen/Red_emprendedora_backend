@@ -13,7 +13,7 @@ public class UsuarioRol {
     private Long idUsuarioRol;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "nombre", nullable = false)
+    @Column(name = "nombre", nullable = false, length = 50)
     private RolEnum nombre;
 
     public UsuarioRol() {}
