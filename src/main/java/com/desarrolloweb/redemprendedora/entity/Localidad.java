@@ -11,10 +11,10 @@ public class Localidad {
     @Column(name = "id_localidad")
     private Long idLocalidad;
 
-    @Column(name = "nombre_localidad", nullable = false)
+    @Column(name = "nombre_localidad", nullable = false, length = 50)
     private String nombreLocalidad;
 
-    @Column(name = "provincia_localidad", nullable = false)
+    @Column(name = "provincia_localidad", nullable = false, length = 50)
     private String provinciaLocalidad;
 
     public Localidad() {}
