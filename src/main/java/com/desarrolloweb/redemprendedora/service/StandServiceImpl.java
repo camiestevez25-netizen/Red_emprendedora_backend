@@ -59,6 +59,7 @@ public class StandServiceImpl implements StandService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<StandResponseDTO> listarStands(StandFiltroDTO filtro, Pageable pageable) {
         Specification<Stand> spec = (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -89,6 +90,7 @@ public class StandServiceImpl implements StandService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public StandResponseDTO obtenerStandPorId(Integer id) {
         Stand stand = standRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Stand no encontrado con ID: " + id));
@@ -145,12 +147,12 @@ public class StandServiceImpl implements StandService {
             throw new BusinessRuleException("No se puede eliminar un stand que está ocupado");
         }
 
-        // Baja lógica: cambiar estado a false (no disponible)
-        stand.setEstadoStand(false);
-        standRepository.save(stand);
+        // Baja física: el stand está libre, no hay historial que conservar
+        standRepository.delete(stand);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public StandResponseDTO obtenerEventoPorStand(Integer id) {
         Stand stand = standRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Stand no encontrado con ID: " + id));
@@ -158,11 +160,13 @@ public class StandServiceImpl implements StandService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public long contarStandsOcupadosPorEvento(Integer idEvento) {
         return standRepository.countOcupadosByEventoId(idEvento);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean existeStandConNumeroEnEvento(Integer idEvento, Integer numeroStand) {
         return standRepository.findByEventoIdEventoAndNumeroStand(idEvento, numeroStand).isPresent();
     }
