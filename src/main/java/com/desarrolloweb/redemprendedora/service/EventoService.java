@@ -60,10 +60,16 @@ public class EventoService {
     }
 
     public List<EventoResponseDTO> listar(String estado) {
-        List<Evento> eventos = (estado != null)
-                ? eventoRepository.findByEstadoIgnoreCase(estado)
-                : eventoRepository.findAll();
-
+        List<Evento> eventos;
+        if (estado != null && !estado.isBlank()) {
+            EstadoEvento estadoEvento = EstadoEvento.buscarPorValor(estado);
+            if (estadoEvento == null) {
+                throw new OperacionInvalidadException("El estado '" + estado + "' no es válido. Los estados válidos son: " + EstadoEvento.valoresValidos());
+            }
+            eventos = eventoRepository.findByEstadoIgnoreCase(estadoEvento.getValor());
+        } else {
+            eventos = eventoRepository.findAll();
+        }
         return eventos.stream()
                 .map(this::mapearAResponse)
                 .collect(Collectors.toList());
