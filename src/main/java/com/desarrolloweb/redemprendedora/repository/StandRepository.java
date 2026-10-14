@@ -28,5 +28,5 @@ public interface StandRepository extends JpaRepository<Stand, Integer>, JpaSpeci
     Long countOcupadosByEventoId(@Param("idEvento") Integer idEvento);
 
     @Query("SELECT s FROM Stand s WHERE s.usuario.idUsuario = :idUsuario")
-    List<Stand> findByUsuarioId(@Param("idUsuario") Integer idUsuario);
+    List<Stand> findByUsuarioId(@Param("idUsuario") Long idUsuario);
 }
