@@ -5,6 +5,7 @@ import com.desarrolloweb.redemprendedora.dto.UsuarioResponseDTO;
 import com.desarrolloweb.redemprendedora.entity.Usuario;
 import com.desarrolloweb.redemprendedora.exception.ResourceNotFoundException;
 import com.desarrolloweb.redemprendedora.repository.UsuarioRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,15 +21,21 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     public UsuarioResponseDTO crear(UsuarioRequestDTO dto) {
-        if (usuarioRepository.existsByEmail(dto.getEmail())) {
+        String email = dto.getEmail().trim().toLowerCase();
+
+        if (usuarioRepository.existsByEmailIgnoreCase(email)) {
             throw new IllegalArgumentException("Ya existe un usuario con ese email");
+        }
+        if (dto.getContrasena() == null || dto.getContrasena().isBlank()) {
+            throw new IllegalArgumentException("La contraseña es obligatoria");
         }
 
         Usuario usuario = new Usuario();
         mapearDtoAEntidad(dto, usuario);
+        usuario.setEmail(email);
+        usuario.setContrasena(dto.getContrasena());
 
-        Usuario guardado = usuarioRepository.save(usuario);
-        return mapearEntidadADto(guardado);
+        return mapearEntidadADto(usuarioRepository.save(usuario));
     }
 
     @Override
@@ -51,31 +58,40 @@ public class UsuarioServiceImpl implements UsuarioService {
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + id));
 
-        mapearDtoAEntidad(dto, usuario);
+        String email = dto.getEmail().trim().toLowerCase();
+        if (usuarioRepository.existsByEmailIgnoreCaseAndIdUsuarioNot(email, id)) {
+            throw new IllegalArgumentException("Ya existe otro usuario con ese email");
+        }
 
-        Usuario actualizado = usuarioRepository.save(usuario);
-        return mapearEntidadADto(actualizado);
+        mapearDtoAEntidad(dto, usuario);
+        usuario.setEmail(email);
+        if (dto.getContrasena() != null && !dto.getContrasena().isBlank()) {
+            usuario.setContrasena(dto.getContrasena());
+        }
+
+        return mapearEntidadADto(usuarioRepository.save(usuario));
     }
 
     @Override
     public void eliminar(Long id) {
-        if (!usuarioRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Usuario no encontrado con id: " + id);
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + id));
+        try {
+            usuarioRepository.delete(usuario);
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalArgumentException(
+                    "No se puede eliminar el usuario porque tiene eventos, stands o roles asociados");
         }
-        usuarioRepository.deleteById(id);
     }
 
     private void mapearDtoAEntidad(UsuarioRequestDTO dto, Usuario usuario) {
         usuario.setNombre(dto.getNombre());
-        usuario.setEmail(dto.getEmail());
         usuario.setTelefono(dto.getTelefono());
         usuario.setDireccion(dto.getDireccion());
-        usuario.setContrasena(dto.getContrasena());
         usuario.setNombreEmprendimiento(dto.getNombreEmprendimiento());
         usuario.setTipoEmprendimiento(dto.getTipoEmprendimiento());
         usuario.setInstagram(dto.getInstagram());
         usuario.setIdUsuarioRol(dto.getIdUsuarioRol());
-        usuario.setIdEvento(dto.getIdEvento());
         usuario.setIdLocalidad(dto.getIdLocalidad());
     }
 
@@ -90,7 +106,6 @@ public class UsuarioServiceImpl implements UsuarioService {
         dto.setTipoEmprendimiento(usuario.getTipoEmprendimiento());
         dto.setInstagram(usuario.getInstagram());
         dto.setIdUsuarioRol(usuario.getIdUsuarioRol());
-        dto.setIdEvento(usuario.getIdEvento());
         dto.setIdLocalidad(usuario.getIdLocalidad());
         return dto;
     }

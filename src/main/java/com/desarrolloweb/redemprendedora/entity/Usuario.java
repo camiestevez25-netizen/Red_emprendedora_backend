@@ -38,8 +38,6 @@ public class Usuario {
     @Column(name = "id_usuario_rol")
     private Long idUsuarioRol;
 
-    @Column(name = "id_evento")
-    private Long idEvento;
 
     @Column(name = "id_localidad")
     private Long idLocalidad;
@@ -77,9 +75,6 @@ public class Usuario {
 
     public Long getIdUsuarioRol() { return idUsuarioRol; }
     public void setIdUsuarioRol(Long idUsuarioRol) { this.idUsuarioRol = idUsuarioRol; }
-
-    public Long getIdEvento() { return idEvento; }
-    public void setIdEvento(Long idEvento) { this.idEvento = idEvento; }
 
     public Long getIdLocalidad() { return idLocalidad; }
     public void setIdLocalidad(Long idLocalidad) { this.idLocalidad = idLocalidad; }

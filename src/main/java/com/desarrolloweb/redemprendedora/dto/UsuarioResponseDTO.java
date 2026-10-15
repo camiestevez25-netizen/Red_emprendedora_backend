@@ -10,7 +10,6 @@ public class UsuarioResponseDTO {
     private String tipoEmprendimiento;
     private String instagram;
     private Long idUsuarioRol;
-    private Long idEvento;
     private Long idLocalidad;
 
     public UsuarioResponseDTO() {
@@ -43,9 +42,6 @@ public class UsuarioResponseDTO {
 
     public Long getIdUsuarioRol() { return idUsuarioRol; }
     public void setIdUsuarioRol(Long idUsuarioRol) { this.idUsuarioRol = idUsuarioRol; }
-
-    public Long getIdEvento() { return idEvento; }
-    public void setIdEvento(Long idEvento) { this.idEvento = idEvento; }
 
     public Long getIdLocalidad() { return idLocalidad; }
     public void setIdLocalidad(Long idLocalidad) { this.idLocalidad = idLocalidad; }
