@@ -5,7 +5,7 @@ import com.desarrolloweb.redemprendedora.dto.EventoResponseDTO;
 import com.desarrolloweb.redemprendedora.dto.EventoUpdateDTO;
 import com.desarrolloweb.redemprendedora.entity.Evento;
 import com.desarrolloweb.redemprendedora.enums.EstadoEvento;
-import com.desarrolloweb.redemprendedora.exception.NoEncontradoException;
+import com.desarrolloweb.redemprendedora.exception.ResourceNotFoundException;
 import com.desarrolloweb.redemprendedora.exception.OperacionInvalidadException;
 import com.desarrolloweb.redemprendedora.repository.EventoRepository;
 import org.springframework.stereotype.Service;
@@ -168,7 +168,7 @@ public class EventoService {
 
     private Evento buscarOFallar(Integer id) {
         return eventoRepository.findById(id)
-                .orElseThrow(() -> new NoEncontradoException("Evento no encontrado con id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Evento no encontrado con id: " + id));
     }
 
     private LocalDate parsearFecha(String fecha, String campo) {
