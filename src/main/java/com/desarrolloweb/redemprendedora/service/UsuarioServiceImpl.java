@@ -4,9 +4,11 @@ import com.desarrolloweb.redemprendedora.dto.UsuarioRequestDTO;
 import com.desarrolloweb.redemprendedora.dto.UsuarioResponseDTO;
 import com.desarrolloweb.redemprendedora.entity.Localidad;
 import com.desarrolloweb.redemprendedora.entity.Usuario;
+import com.desarrolloweb.redemprendedora.entity.UsuarioRol;
 import com.desarrolloweb.redemprendedora.exception.ResourceNotFoundException;
 import com.desarrolloweb.redemprendedora.repository.LocalidadRepository;
 import com.desarrolloweb.redemprendedora.repository.UsuarioRepository;
+import com.desarrolloweb.redemprendedora.repository.UsuarioRolRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -17,10 +19,12 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final LocalidadRepository localidadRepository;
+    private final UsuarioRolRepository usuarioRolRepository;
 
-    public UsuarioServiceImpl(UsuarioRepository usuarioRepository, LocalidadRepository localidadRepository) {
+    public UsuarioServiceImpl(UsuarioRepository usuarioRepository, LocalidadRepository localidadRepository, UsuarioRolRepository usuarioRolRepository) {
         this.usuarioRepository = usuarioRepository;
         this.localidadRepository = localidadRepository;
+        this.usuarioRolRepository = usuarioRolRepository;
     }
 
     @Override
@@ -95,7 +99,14 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuario.setNombreEmprendimiento(dto.getNombreEmprendimiento());
         usuario.setTipoEmprendimiento(dto.getTipoEmprendimiento());
         usuario.setInstagram(dto.getInstagram());
-        usuario.setIdUsuarioRol(dto.getIdUsuarioRol());
+        if (dto.getIdUsuarioRol() != null) {
+            UsuarioRol rol = usuarioRolRepository.findById(dto.getIdUsuarioRol())
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Rol no encontrado con id: " + dto.getIdUsuarioRol()));
+            usuario.setUsuarioRol(rol);
+        } else {
+            usuario.setUsuarioRol(null);
+        }
         if (dto.getIdLocalidad() != null) {
             Localidad localidad = localidadRepository.findById(dto.getIdLocalidad())
                     .orElseThrow(() -> new ResourceNotFoundException(
@@ -105,7 +116,6 @@ public class UsuarioServiceImpl implements UsuarioService {
             usuario.setLocalidad(null);
         }
     }
-
     private UsuarioResponseDTO mapearEntidadADto(Usuario usuario) {
         UsuarioResponseDTO dto = new UsuarioResponseDTO();
         dto.setIdUsuario(usuario.getIdUsuario());
@@ -116,7 +126,9 @@ public class UsuarioServiceImpl implements UsuarioService {
         dto.setNombreEmprendimiento(usuario.getNombreEmprendimiento());
         dto.setTipoEmprendimiento(usuario.getTipoEmprendimiento());
         dto.setInstagram(usuario.getInstagram());
-        dto.setIdUsuarioRol(usuario.getIdUsuarioRol());
+        if (usuario.getUsuarioRol() != null) {
+            dto.setIdUsuarioRol(usuario.getUsuarioRol().getIdUsuarioRol());
+        }
         if (usuario.getLocalidad() != null) {
             dto.setIdLocalidad(usuario.getLocalidad().getIdLocalidad());
             dto.setNombreLocalidad(usuario.getLocalidad().getNombreLocalidad());
