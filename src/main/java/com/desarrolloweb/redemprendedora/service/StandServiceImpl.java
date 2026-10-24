@@ -10,12 +10,14 @@ import com.desarrolloweb.redemprendedora.exception.BusinessRuleException;
 import com.desarrolloweb.redemprendedora.exception.ResourceNotFoundException;
 import com.desarrolloweb.redemprendedora.repository.EventoRepository;
 import com.desarrolloweb.redemprendedora.repository.StandRepository;
+import com.desarrolloweb.redemprendedora.enums.EstadoEvento;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 import jakarta.persistence.criteria.Predicate;
 import java.util.ArrayList;
@@ -37,7 +39,7 @@ public class StandServiceImpl implements StandService {
                         "Evento no encontrado con ID: " + standRequestDTO.getIdEvento()));
 
         // Validar que el evento no esté cancelado
-        if ("Cancelado".equals(evento.getEstadoEvento())) {
+        if (EstadoEvento.CANCELADO.getValor().equals(evento.getEstado())) {
             throw new BusinessRuleException("No se puede crear stands en un evento cancelado");
         }
 
@@ -109,7 +111,7 @@ public class StandServiceImpl implements StandService {
                         "Evento no encontrado con ID: " + standRequestDTO.getIdEvento()));
 
         // Validar que el evento no esté cancelado
-        if ("Cancelado".equals(evento.getEstadoEvento())) {
+        if (EstadoEvento.CANCELADO.getValor().equals(evento.getEstado())) {
             throw new BusinessRuleException("No se puede modificar stands en un evento cancelado");
         }
 
@@ -181,10 +183,14 @@ public class StandServiceImpl implements StandService {
 
         if (stand.getEvento() != null) {
             dto.setIdEvento(stand.getEvento().getIdEvento());
-            dto.setNombreEvento(stand.getEvento().getNombreEvento());
-            dto.setEstadoEvento(stand.getEvento().getEstadoEvento());
+            dto.setNombreEvento(stand.getEvento().getNombre());
+            dto.setEstadoEvento(stand.getEvento().getEstado());
         }
-
+        if (stand.getUsuario() != null) {
+            dto.setIdUsuario(stand.getUsuario().getIdUsuario());
+            dto.setNombreUsuario(stand.getUsuario().getNombre());
+            dto.setNombreEmprendimiento(stand.getUsuario().getNombreEmprendimiento());
+        }
         return dto;
     }
 }

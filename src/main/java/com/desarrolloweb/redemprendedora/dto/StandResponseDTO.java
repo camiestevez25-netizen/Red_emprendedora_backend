@@ -15,7 +15,7 @@ public class StandResponseDTO {
     private String nombreEvento;
     private String estadoEvento;
 
-    private Integer idUsuario;
+    private Long idUsuario;
     private String nombreUsuario;
     private String nombreEmprendimiento;
 }
