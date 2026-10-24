@@ -35,8 +35,9 @@ public class Usuario {
     @Column(name = "instagram", length = 100)
     private String instagram;
 
-    @Column(name = "id_usuario_rol")
-    private Long idUsuarioRol;
+    @ManyToOne
+    @JoinColumn(name = "id_usuario_rol")
+    private UsuarioRol usuarioRol;
 
     @ManyToOne
     @JoinColumn(name = "id_localidad")
@@ -118,12 +119,12 @@ public class Usuario {
         this.instagram = instagram;
     }
 
-    public Long getIdUsuarioRol() {
-        return idUsuarioRol;
+    public UsuarioRol getUsuarioRol() {
+        return usuarioRol;
     }
 
-    public void setIdUsuarioRol(Long idUsuarioRol) {
-        this.idUsuarioRol = idUsuarioRol;
+    public void setUsuarioRol(UsuarioRol usuarioRol) {
+        this.usuarioRol = usuarioRol;
     }
 
     public Localidad getLocalidad() { return localidad; }
