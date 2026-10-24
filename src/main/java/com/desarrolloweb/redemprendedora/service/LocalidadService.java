@@ -3,6 +3,8 @@ package com.desarrolloweb.redemprendedora.service;
 import com.desarrolloweb.redemprendedora.dto.LocalidadDTO;
 import com.desarrolloweb.redemprendedora.entity.Localidad;
 import com.desarrolloweb.redemprendedora.repository.LocalidadRepository;
+import com.desarrolloweb.redemprendedora.exception.ResourceNotFoundException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -56,13 +58,17 @@ public class LocalidadService {
 
     public void eliminar(Long id) {
         Localidad localidad = buscarEntidadPorId(id);
-        repository.delete(localidad);
+        try {
+            repository.delete(localidad);
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalArgumentException(
+                    "No se puede eliminar la localidad porque tiene usuarios asociados");
+        }
     }
-
-    // TODO: cambiar por ResourceNotFoundException cuando llegue main
     private Localidad buscarEntidadPorId(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Localidad no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Localidad no encontrada con id: " + id));
     }
 
     private LocalidadDTO convertirADTO(Localidad localidad) {
