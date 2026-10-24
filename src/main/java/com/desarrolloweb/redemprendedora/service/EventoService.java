@@ -4,6 +4,8 @@ import com.desarrolloweb.redemprendedora.dto.EventoRequestDTO;
 import com.desarrolloweb.redemprendedora.dto.EventoResponseDTO;
 import com.desarrolloweb.redemprendedora.dto.EventoUpdateDTO;
 import com.desarrolloweb.redemprendedora.entity.Evento;
+import com.desarrolloweb.redemprendedora.entity.Stand;
+import com.desarrolloweb.redemprendedora.repository.StandRepository;
 import com.desarrolloweb.redemprendedora.enums.EstadoEvento;
 import com.desarrolloweb.redemprendedora.exception.ResourceNotFoundException;
 import com.desarrolloweb.redemprendedora.exception.OperacionInvalidadException;
@@ -34,9 +36,11 @@ public class EventoService {
             "en", "a", "al", "con", "por", "para");
 
     private final EventoRepository eventoRepository;
+    private final StandRepository standRepository;
 
-    public EventoService(EventoRepository eventoRepository) {
+    public EventoService(EventoRepository eventoRepository, StandRepository standRepository) {
         this.eventoRepository = eventoRepository;
+        this.standRepository = standRepository;
     }
 
     public EventoResponseDTO crear(EventoRequestDTO dto) {
@@ -111,14 +115,19 @@ public class EventoService {
             if (dto.getMetrosCuadrados().isBlank()) {
                 throw new OperacionInvalidadException("Los metros cuadrados no pueden estar vacíos");
             }
-            // TODO: rechazar el cambio si el evento ya tiene stands reservados (depende de StandRepository)
-            evento.setMetrosCuadrados(dto.getMetrosCuadrados().trim());
+            String nuevosMetros = dto.getMetrosCuadrados().trim();
+            if (!nuevosMetros.equals(evento.getMetrosCuadrados()) && tieneStandsReservados(evento)) {
+                throw new OperacionInvalidadException(
+                        "No se pueden cambiar los metros cuadrados: el evento ya tiene stands reservados");
+            }
+            evento.setMetrosCuadrados(nuevosMetros);
         }
 
         Evento actualizado = eventoRepository.save(evento);
         return mapearAResponse(actualizado);
     }
 
+    @Transactional
     public String eliminar(Integer id) {
         Evento evento = buscarOFallar(id);
 
@@ -128,6 +137,9 @@ public class EventoService {
             return "El evento tiene stands reservados, por eso se canceló en lugar de borrarse";
         }
 
+        //Los stands libres no tienen historial: se borran junto con el evento
+        List<Stand> standsLibres = standRepository.findByEventoId(id);
+        standRepository.deleteAll(standsLibres);
         eventoRepository.delete(evento);
         return "Evento eliminado";
     }
@@ -161,9 +173,8 @@ public class EventoService {
         }
     }
 
-    // TODO: cuando exista Stand, preguntar al StandRepository si el evento tiene stands reservados
     private boolean tieneStandsReservados(Evento evento) {
-        return false;
+        return standRepository.countOcupadosByEventoId(evento.getIdEvento()) > 0;
     }
 
     private Evento buscarOFallar(Integer id) {
