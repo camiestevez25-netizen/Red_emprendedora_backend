@@ -1,0 +1,252 @@
+package com.desarrolloweb.redemprendedora.service;
+
+import com.desarrolloweb.redemprendedora.dto.StandFiltroDTO;
+import com.desarrolloweb.redemprendedora.dto.StandRequestDTO;
+import com.desarrolloweb.redemprendedora.dto.StandResponseDTO;
+import com.desarrolloweb.redemprendedora.entity.Evento;
+import com.desarrolloweb.redemprendedora.entity.Stand;
+import com.desarrolloweb.redemprendedora.enums.EstadoStand;
+import com.desarrolloweb.redemprendedora.exception.BusinessRuleException;
+import com.desarrolloweb.redemprendedora.exception.ResourceNotFoundException;
+import com.desarrolloweb.redemprendedora.repository.EventoRepository;
+import com.desarrolloweb.redemprendedora.repository.StandRepository;
+import com.desarrolloweb.redemprendedora.enums.EstadoEvento;
+import com.desarrolloweb.redemprendedora.entity.Usuario;
+import com.desarrolloweb.redemprendedora.repository.UsuarioRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+
+import jakarta.persistence.criteria.Predicate;
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class StandServiceImpl implements StandService {
+
+    private final StandRepository standRepository;
+    private final EventoRepository eventoRepository;
+    private final EventoService eventoService;
+    private final UsuarioRepository usuarioRepository;
+
+    @Override
+    @Transactional
+    public StandResponseDTO crearStand(StandRequestDTO standRequestDTO) {
+        // Validar que el evento existe
+        Evento evento = eventoRepository.findById(standRequestDTO.getIdEvento())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Evento no encontrado con ID: " + standRequestDTO.getIdEvento()));
+
+        // Validar que el evento no esté cancelado
+        if (EstadoEvento.CANCELADO.getValor().equals(evento.getEstado())) {
+            throw new BusinessRuleException("No se puede crear stands en un evento cancelado");
+        }
+
+        // Validar que el número de stand es único para el evento
+        if (standRepository.findByEventoIdEventoAndNumeroStand(evento.getIdEvento(), standRequestDTO.getNumeroStand()).isPresent()) {
+            throw new BusinessRuleException(
+                    "El número de stand " + standRequestDTO.getNumeroStand() + " ya existe para este evento");
+        }
+
+        // Crear stand
+        Stand stand = new Stand();
+        stand.setCostoStand(standRequestDTO.getCostoStand());
+        stand.setNumeroStand(standRequestDTO.getNumeroStand());
+        stand.setEstadoStand(true); // Disponible por defecto
+        stand.setEvento(evento);
+
+        Stand savedStand = standRepository.save(stand);
+        eventoService.reactivar(evento.getIdEvento());
+        return convertirAResponseDTO(savedStand);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<StandResponseDTO> listarStands(StandFiltroDTO filtro, Pageable pageable) {
+        Specification<Stand> spec = (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (filtro.getIdEvento() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("evento").get("idEvento"), filtro.getIdEvento()));
+            }
+
+            if (filtro.getEstadoStand() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("estadoStand"), filtro.getEstadoStand()));
+            }
+
+            if (filtro.getNumeroStand() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("numeroStand"), filtro.getNumeroStand()));
+            }
+
+            if (filtro.getNombreEvento() != null && !filtro.getNombreEvento().isEmpty()) {
+                predicates.add(criteriaBuilder.like(
+                        criteriaBuilder.lower(root.get("evento").get("nombre")),
+                        "%" + filtro.getNombreEvento().toLowerCase() + "%"));
+            }
+
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
+
+        return standRepository.findAll(spec, pageable)
+                .map(this::convertirAResponseDTO);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public StandResponseDTO obtenerStandPorId(Integer id) {
+        Stand stand = standRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Stand no encontrado con ID: " + id));
+        return convertirAResponseDTO(stand);
+    }
+
+    @Override
+    @Transactional
+    public StandResponseDTO actualizarStand(Integer id, StandRequestDTO standRequestDTO) {
+        Stand stand = standRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Stand no encontrado con ID: " + id));
+
+        // Validar que el evento existe
+        Evento evento = eventoRepository.findById(standRequestDTO.getIdEvento())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Evento no encontrado con ID: " + standRequestDTO.getIdEvento()));
+
+        // Validar que el evento no esté cancelado
+        if (EstadoEvento.CANCELADO.getValor().equals(evento.getEstado())) {
+            throw new BusinessRuleException("No se puede modificar stands en un evento cancelado");
+        }
+
+        // Si el stand está ocupado (estadoStand = false), no permitir cambios
+        if (!stand.getEstadoStand()) {
+            throw new BusinessRuleException("No se puede modificar un stand que está ocupado");
+        }
+
+        // Validar que el número de stand es único para el evento (excepto el mismo stand)
+        Stand existingStand = standRepository.findByEventoIdEventoAndNumeroStand(
+                evento.getIdEvento(), standRequestDTO.getNumeroStand()).orElse(null);
+        if (existingStand != null && !existingStand.getIdStand().equals(id)) {
+            throw new BusinessRuleException(
+                    "El número de stand " + standRequestDTO.getNumeroStand() + " ya existe para este evento");
+        }
+
+        // Actualizar datos
+        stand.setCostoStand(standRequestDTO.getCostoStand());
+        stand.setNumeroStand(standRequestDTO.getNumeroStand());
+        stand.setEvento(evento);
+        // Mantener el estado actual (no se puede cambiar el estado en PUT)
+
+        Stand updatedStand = standRepository.save(stand);
+        return convertirAResponseDTO(updatedStand);
+    }
+
+    @Override
+    @Transactional
+    public void eliminarStand(Integer id) {
+        Stand stand = standRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Stand no encontrado con ID: " + id));
+
+        // Validar que el stand no esté ocupado
+        if (!stand.getEstadoStand()) {
+            throw new BusinessRuleException("No se puede eliminar un stand que está ocupado");
+        }
+
+        // Baja física: el stand está libre, no hay historial que conservar
+        standRepository.delete(stand);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public StandResponseDTO obtenerEventoPorStand(Integer id) {
+        Stand stand = standRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Stand no encontrado con ID: " + id));
+        return convertirAResponseDTO(stand);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long contarStandsOcupadosPorEvento(Integer idEvento) {
+        return standRepository.countOcupadosByEventoId(idEvento);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean existeStandConNumeroEnEvento(Integer idEvento, Integer numeroStand) {
+        return standRepository.findByEventoIdEventoAndNumeroStand(idEvento, numeroStand).isPresent();
+    }
+
+    @Override
+    @Transactional
+    public StandResponseDTO reservarStand(Integer idStand, Long idUsuario) {
+        // Busca el stand y lo bloquea hasta que termine la reserva (RNF-02)
+        Stand stand = standRepository.findByIdParaReservar(idStand)
+                .orElseThrow(() -> new ResourceNotFoundException("Stand no encontrado con ID: " + idStand));
+
+        if (!stand.getEstadoStand()) {
+            throw new BusinessRuleException("El stand ya está reservado");
+        }
+
+        Evento evento = stand.getEvento();
+        if (EstadoEvento.CANCELADO.getValor().equals(evento.getEstado())) {
+            throw new BusinessRuleException("No se puede reservar un stand de un evento cancelado");
+        }
+
+        Usuario usuario = usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con ID: " + idUsuario));
+
+        stand.setUsuario(usuario);
+        stand.setEstadoStand(false); // false = ocupado
+        standRepository.save(stand);
+
+        // RF-05: si era el último stand libre, el evento pasa a "Agotado"
+        if (standRepository.countDisponiblesByEventoId(evento.getIdEvento()) == 0) {
+            eventoService.marcarComoAgotado(evento.getIdEvento());
+        }
+
+        return convertirAResponseDTO(stand);
+    }
+
+    @Override
+    @Transactional
+    public StandResponseDTO cancelarReserva(Integer idStand) {
+        Stand stand = standRepository.findByIdParaReservar(idStand)
+                .orElseThrow(() -> new ResourceNotFoundException("Stand no encontrado con ID: " + idStand));
+
+        if (stand.getEstadoStand()) {
+            throw new BusinessRuleException("El stand no está reservado");
+        }
+
+        stand.setUsuario(null);
+        stand.setEstadoStand(true); // vuelve a estar disponible
+        standRepository.save(stand);
+
+        // Si el evento estaba "Agotado", vuelve a "Activo"
+        eventoService.reactivar(stand.getEvento().getIdEvento());
+
+        return convertirAResponseDTO(stand);
+    }
+
+    private StandResponseDTO convertirAResponseDTO(Stand stand) {
+        StandResponseDTO dto = new StandResponseDTO();
+        dto.setIdStand(stand.getIdStand());
+        dto.setCostoStand(stand.getCostoStand());
+        dto.setEstadoStand(stand.getEstadoStand());
+        dto.setEstadoStandTexto(EstadoStand.getEstadoTexto(stand.getEstadoStand()));
+        dto.setNumeroStand(stand.getNumeroStand());
+
+        if (stand.getEvento() != null) {
+            dto.setIdEvento(stand.getEvento().getIdEvento());
+            dto.setNombreEvento(stand.getEvento().getNombre());
+            dto.setEstadoEvento(stand.getEvento().getEstado());
+        }
+        if (stand.getUsuario() != null) {
+            dto.setIdUsuario(stand.getUsuario().getIdUsuario());
+            dto.setNombreUsuario(stand.getUsuario().getNombre());
+            dto.setNombreEmprendimiento(stand.getUsuario().getNombreEmprendimiento());
+        }
+        return dto;
+    }
+}

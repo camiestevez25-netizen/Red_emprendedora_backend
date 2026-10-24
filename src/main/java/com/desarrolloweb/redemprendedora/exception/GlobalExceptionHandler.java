@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -21,8 +22,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, Object>> manejarArgumentoInvalido(IllegalArgumentException ex) {
+    @ExceptionHandler({IllegalArgumentException.class, OperacionInvalidadException.class, BusinessRuleException.class})
+    public ResponseEntity<Map<String, Object>> manejarArgumentoInvalido(RuntimeException ex){
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("status", HttpStatus.BAD_REQUEST.value());
@@ -43,4 +44,5 @@ public class GlobalExceptionHandler {
         body.put("errores", errores);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
+
 }
