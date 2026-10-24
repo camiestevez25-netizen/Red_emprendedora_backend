@@ -11,6 +11,7 @@ public class UsuarioResponseDTO {
     private String instagram;
     private Long idUsuarioRol;
     private Long idLocalidad;
+    private String nombreLocalidad;
 
     public UsuarioResponseDTO() {
     }
@@ -45,4 +46,7 @@ public class UsuarioResponseDTO {
 
     public Long getIdLocalidad() { return idLocalidad; }
     public void setIdLocalidad(Long idLocalidad) { this.idLocalidad = idLocalidad; }
+
+    public String getNombreLocalidad() { return nombreLocalidad; }
+    public void setNombreLocalidad(String nombreLocalidad) { this.nombreLocalidad = nombreLocalidad; }
 }

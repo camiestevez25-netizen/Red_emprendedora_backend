@@ -2,8 +2,10 @@ package com.desarrolloweb.redemprendedora.service;
 
 import com.desarrolloweb.redemprendedora.dto.UsuarioRequestDTO;
 import com.desarrolloweb.redemprendedora.dto.UsuarioResponseDTO;
+import com.desarrolloweb.redemprendedora.entity.Localidad;
 import com.desarrolloweb.redemprendedora.entity.Usuario;
 import com.desarrolloweb.redemprendedora.exception.ResourceNotFoundException;
+import com.desarrolloweb.redemprendedora.repository.LocalidadRepository;
 import com.desarrolloweb.redemprendedora.repository.UsuarioRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -14,9 +16,11 @@ import java.util.stream.Collectors;
 public class UsuarioServiceImpl implements UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+    private final LocalidadRepository localidadRepository;
 
-    public UsuarioServiceImpl(UsuarioRepository usuarioRepository) {
+    public UsuarioServiceImpl(UsuarioRepository usuarioRepository, LocalidadRepository localidadRepository) {
         this.usuarioRepository = usuarioRepository;
+        this.localidadRepository = localidadRepository;
     }
 
     @Override
@@ -92,7 +96,14 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuario.setTipoEmprendimiento(dto.getTipoEmprendimiento());
         usuario.setInstagram(dto.getInstagram());
         usuario.setIdUsuarioRol(dto.getIdUsuarioRol());
-        usuario.setIdLocalidad(dto.getIdLocalidad());
+        if (dto.getIdLocalidad() != null) {
+            Localidad localidad = localidadRepository.findById(dto.getIdLocalidad())
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Localidad no encontrada con id: " + dto.getIdLocalidad()));
+            usuario.setLocalidad(localidad);
+        } else {
+            usuario.setLocalidad(null);
+        }
     }
 
     private UsuarioResponseDTO mapearEntidadADto(Usuario usuario) {
@@ -106,7 +117,10 @@ public class UsuarioServiceImpl implements UsuarioService {
         dto.setTipoEmprendimiento(usuario.getTipoEmprendimiento());
         dto.setInstagram(usuario.getInstagram());
         dto.setIdUsuarioRol(usuario.getIdUsuarioRol());
-        dto.setIdLocalidad(usuario.getIdLocalidad());
+        if (usuario.getLocalidad() != null) {
+            dto.setIdLocalidad(usuario.getLocalidad().getIdLocalidad());
+            dto.setNombreLocalidad(usuario.getLocalidad().getNombreLocalidad());
+        }
         return dto;
     }
 }
