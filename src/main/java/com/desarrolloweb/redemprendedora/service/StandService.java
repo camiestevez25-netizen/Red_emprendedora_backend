@@ -23,4 +23,8 @@ public interface StandService {
     long contarStandsOcupadosPorEvento(Integer idEvento);
 
     boolean existeStandConNumeroEnEvento(Integer idEvento, Integer numeroStand);
+
+    StandResponseDTO reservarStand(Integer idStand, Long idUsuario);
+
+    StandResponseDTO cancelarReserva(Integer idStand);
 }

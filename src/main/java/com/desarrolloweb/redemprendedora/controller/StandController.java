@@ -59,4 +59,16 @@ public class StandController {
     public ResponseEntity<Long> contarStandsOcupados(@PathVariable Integer idEvento) {
         return ResponseEntity.ok(standService.contarStandsOcupadosPorEvento(idEvento));
     }
+    // PUT /api/stands/{id}/reservar?idUsuario=5
+    @PutMapping("/{id}/reservar")
+    public ResponseEntity<StandResponseDTO> reservarStand(@PathVariable Integer id,
+                                                          @RequestParam Long idUsuario) {
+        return ResponseEntity.ok(standService.reservarStand(id, idUsuario));
+    }
+
+    // PUT /api/stands/{id}/cancelar-reserva
+    @PutMapping("/{id}/cancelar-reserva")
+    public ResponseEntity<StandResponseDTO> cancelarReserva(@PathVariable Integer id) {
+        return ResponseEntity.ok(standService.cancelarReserva(id));
+    }
 }

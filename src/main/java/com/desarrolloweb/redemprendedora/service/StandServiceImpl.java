@@ -11,6 +11,8 @@ import com.desarrolloweb.redemprendedora.exception.ResourceNotFoundException;
 import com.desarrolloweb.redemprendedora.repository.EventoRepository;
 import com.desarrolloweb.redemprendedora.repository.StandRepository;
 import com.desarrolloweb.redemprendedora.enums.EstadoEvento;
+import com.desarrolloweb.redemprendedora.entity.Usuario;
+import com.desarrolloweb.redemprendedora.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +31,8 @@ public class StandServiceImpl implements StandService {
 
     private final StandRepository standRepository;
     private final EventoRepository eventoRepository;
+    private final EventoService eventoService;
+    private final UsuarioRepository usuarioRepository;
 
     @Override
     @Transactional
@@ -57,6 +61,7 @@ public class StandServiceImpl implements StandService {
         stand.setEvento(evento);
 
         Stand savedStand = standRepository.save(stand);
+        eventoService.reactivar(evento.getIdEvento());
         return convertirAResponseDTO(savedStand);
     }
 
@@ -171,6 +176,57 @@ public class StandServiceImpl implements StandService {
     @Transactional(readOnly = true)
     public boolean existeStandConNumeroEnEvento(Integer idEvento, Integer numeroStand) {
         return standRepository.findByEventoIdEventoAndNumeroStand(idEvento, numeroStand).isPresent();
+    }
+
+    @Override
+    @Transactional
+    public StandResponseDTO reservarStand(Integer idStand, Long idUsuario) {
+        // Busca el stand y lo bloquea hasta que termine la reserva (RNF-02)
+        Stand stand = standRepository.findByIdParaReservar(idStand)
+                .orElseThrow(() -> new ResourceNotFoundException("Stand no encontrado con ID: " + idStand));
+
+        if (!stand.getEstadoStand()) {
+            throw new BusinessRuleException("El stand ya está reservado");
+        }
+
+        Evento evento = stand.getEvento();
+        if (EstadoEvento.CANCELADO.getValor().equals(evento.getEstado())) {
+            throw new BusinessRuleException("No se puede reservar un stand de un evento cancelado");
+        }
+
+        Usuario usuario = usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con ID: " + idUsuario));
+
+        stand.setUsuario(usuario);
+        stand.setEstadoStand(false); // false = ocupado
+        standRepository.save(stand);
+
+        // RF-05: si era el último stand libre, el evento pasa a "Agotado"
+        if (standRepository.countDisponiblesByEventoId(evento.getIdEvento()) == 0) {
+            eventoService.marcarComoAgotado(evento.getIdEvento());
+        }
+
+        return convertirAResponseDTO(stand);
+    }
+
+    @Override
+    @Transactional
+    public StandResponseDTO cancelarReserva(Integer idStand) {
+        Stand stand = standRepository.findByIdParaReservar(idStand)
+                .orElseThrow(() -> new ResourceNotFoundException("Stand no encontrado con ID: " + idStand));
+
+        if (stand.getEstadoStand()) {
+            throw new BusinessRuleException("El stand no está reservado");
+        }
+
+        stand.setUsuario(null);
+        stand.setEstadoStand(true); // vuelve a estar disponible
+        standRepository.save(stand);
+
+        // Si el evento estaba "Agotado", vuelve a "Activo"
+        eventoService.reactivar(stand.getEvento().getIdEvento());
+
+        return convertirAResponseDTO(stand);
     }
 
     private StandResponseDTO convertirAResponseDTO(Stand stand) {
