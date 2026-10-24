@@ -1,5 +1,7 @@
 package com.desarrolloweb.redemprendedora.repository;
 
+import jakarta.persistence.LockModeType;
+import org.springframework.data.jpa.repository.Lock;
 import com.desarrolloweb.redemprendedora.entity.Stand;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -29,4 +31,12 @@ public interface StandRepository extends JpaRepository<Stand, Integer>, JpaSpeci
 
     @Query("SELECT s FROM Stand s WHERE s.usuario.idUsuario = :idUsuario")
     List<Stand> findByUsuarioId(@Param("idUsuario") Long idUsuario);
+
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT s FROM Stand s WHERE s.idStand = :idStand")
+    Optional<Stand> findByIdParaReservar(@Param("idStand") Integer idStand);
+
+    @Query("SELECT COUNT(s) FROM Stand s WHERE s.evento.idEvento = :idEvento AND s.estadoStand = true")
+    Long countDisponiblesByEventoId(@Param("idEvento") Integer idEvento);
 }
