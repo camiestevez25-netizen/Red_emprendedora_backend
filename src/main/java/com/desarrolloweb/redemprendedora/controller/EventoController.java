@@ -30,8 +30,10 @@ public class EventoController {
 
     @GetMapping
     public ResponseEntity<List<EventoResponseDTO>> listar(
-            @RequestParam(required = false) String estado) {
-        return ResponseEntity.ok(eventoService.listar(estado));
+            @RequestParam(required = false) String estado,
+            @RequestParam(required = false) Long idLocalidad,
+            @RequestParam(required = false) Long idUsuario) {
+        return ResponseEntity.ok(eventoService.listar(estado, idLocalidad, idUsuario));
     }
 
     @GetMapping("/{id}")

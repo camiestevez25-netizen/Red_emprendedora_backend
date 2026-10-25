@@ -1,5 +1,6 @@
 package com.desarrolloweb.redemprendedora.dto;
 
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
@@ -23,6 +24,12 @@ public class EventoRequestDTO {
     @Size(max = 25, message = "Los metros cuadrados no pueden superar los 25 caracteres")
     private String metrosCuadrados;
 
+    @NotNull(message = "La localidad es obligatoria")
+    private Long idLocalidad;
+
+    @NotNull(message = "El organizador es obligatorio")
+    private Long idUsuario;
+
     public EventoRequestDTO() {}
 
     public String getNombre() { return nombre; }
@@ -39,4 +46,10 @@ public class EventoRequestDTO {
 
     public String getMetrosCuadrados() { return metrosCuadrados; }
     public void setMetrosCuadrados(String metrosCuadrados) { this.metrosCuadrados = metrosCuadrados; }
+
+    public Long getIdLocalidad() { return idLocalidad; }
+    public void setIdLocalidad(Long idLocalidad) { this.idLocalidad = idLocalidad; }
+
+    public Long getIdUsuario() { return idUsuario; }
+    public void setIdUsuario(Long idUsuario) { this.idUsuario = idUsuario; }
 }

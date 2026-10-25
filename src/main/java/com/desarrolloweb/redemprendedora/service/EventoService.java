@@ -10,6 +10,11 @@ import com.desarrolloweb.redemprendedora.enums.EstadoEvento;
 import com.desarrolloweb.redemprendedora.exception.ResourceNotFoundException;
 import com.desarrolloweb.redemprendedora.exception.OperacionInvalidadException;
 import com.desarrolloweb.redemprendedora.repository.EventoRepository;
+import com.desarrolloweb.redemprendedora.entity.Localidad;
+import com.desarrolloweb.redemprendedora.entity.Usuario;
+import com.desarrolloweb.redemprendedora.enums.RolEnum;
+import com.desarrolloweb.redemprendedora.repository.LocalidadRepository;
+import com.desarrolloweb.redemprendedora.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,10 +42,17 @@ public class EventoService {
 
     private final EventoRepository eventoRepository;
     private final StandRepository standRepository;
+    private final LocalidadRepository localidadRepository;
+    private final UsuarioRepository usuarioRepository;
 
-    public EventoService(EventoRepository eventoRepository, StandRepository standRepository) {
+    public EventoService(EventoRepository eventoRepository,
+                         StandRepository standRepository,
+                         LocalidadRepository localidadRepository,
+                         UsuarioRepository usuarioRepository) {
         this.eventoRepository = eventoRepository;
         this.standRepository = standRepository;
+        this.localidadRepository = localidadRepository;
+        this.usuarioRepository = usuarioRepository;
     }
 
     public EventoResponseDTO crear(EventoRequestDTO dto) {
@@ -54,6 +66,9 @@ public class EventoService {
         evento.setFechaFin(fin.toString());
         evento.setEstado(EstadoEvento.ACTIVO.getValor());
 
+        evento.setLocalidad(buscarLocalidad(dto.getIdLocalidad()));
+        evento.setUsuario(buscarOrganizador(dto.getIdUsuario()));
+
         BigDecimal precio = (dto.getPrecioEntrada() != null) ? dto.getPrecioEntrada() : BigDecimal.ZERO;
         evento.setPrecioEntrada(precio);
 
@@ -63,7 +78,7 @@ public class EventoService {
         return mapearAResponse(guardado);
     }
 
-    public List<EventoResponseDTO> listar(String estado) {
+    public List<EventoResponseDTO> listar(String estado, Long idLocalidad, Long idUsuario) {
         List<Evento> eventos;
         if (estado != null && !estado.isBlank()) {
             EstadoEvento estadoEvento = EstadoEvento.buscarPorValor(estado);
@@ -74,7 +89,14 @@ public class EventoService {
         } else {
             eventos = eventoRepository.findAll();
         }
+
         return eventos.stream()
+                // Si mandan idLocalidad, quedan solo los eventos de esa localidad
+                .filter(e -> idLocalidad == null
+                        || (e.getLocalidad() != null && e.getLocalidad().getIdLocalidad().equals(idLocalidad)))
+                // Si mandan idUsuario, quedan solo los eventos de ese organizador
+                .filter(e -> idUsuario == null
+                        || (e.getUsuario() != null && e.getUsuario().getIdUsuario().equals(idUsuario)))
                 .map(this::mapearAResponse)
                 .collect(Collectors.toList());
     }
@@ -82,6 +104,22 @@ public class EventoService {
     public EventoResponseDTO obtenerPorId(Integer id) {
         Evento evento = buscarOFallar(id);
         return mapearAResponse(evento);
+    }
+
+    private Localidad buscarLocalidad(Long idLocalidad) {
+        return localidadRepository.findById(idLocalidad)
+                .orElseThrow(() -> new ResourceNotFoundException("Localidad no encontrada con id: " + idLocalidad));
+    }
+
+    // Busca el usuario y controla que tenga rol Organizador (RF-02)
+    private Usuario buscarOrganizador(Long idUsuario) {
+        Usuario usuario = usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + idUsuario));
+
+        if (usuario.getUsuarioRol() == null || usuario.getUsuarioRol().getNombre() != RolEnum.ORGANIZADOR) {
+            throw new OperacionInvalidadException("El usuario " + idUsuario + " no es Organizador: solo un Organizador puede crear eventos");
+        }
+        return usuario;
     }
 
     public EventoResponseDTO actualizar(Integer id, EventoUpdateDTO dto) {
@@ -121,6 +159,10 @@ public class EventoService {
                         "No se pueden cambiar los metros cuadrados: el evento ya tiene stands reservados");
             }
             evento.setMetrosCuadrados(nuevosMetros);
+        }
+
+        if (dto.getIdLocalidad() != null) {
+            evento.setLocalidad(buscarLocalidad(dto.getIdLocalidad()));
         }
 
         Evento actualizado = eventoRepository.save(evento);
@@ -227,6 +269,16 @@ public class EventoService {
         dto.setPrecioEntradaTexto(gratuita ? "Entrada gratuita" : "$ " + evento.getPrecioEntrada().toPlainString());
 
         dto.setMetrosCuadrados(evento.getMetrosCuadrados());
+
+        // Los eventos creados antes de este cambio no tienen localidad ni organizador
+        if (evento.getLocalidad() != null) {
+            dto.setIdLocalidad(evento.getLocalidad().getIdLocalidad());
+            dto.setNombreLocalidad(evento.getLocalidad().getNombreLocalidad());
+        }
+        if (evento.getUsuario() != null) {
+            dto.setIdUsuario(evento.getUsuario().getIdUsuario());
+            dto.setNombreOrganizador(evento.getUsuario().getNombre());
+        }
         return dto;
     }
 }

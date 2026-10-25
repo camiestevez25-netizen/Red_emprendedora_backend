@@ -22,6 +22,8 @@ public class EventoUpdateDTO {
     @Size(max = 25, message = "Los metros cuadrados no pueden superar los 25 caracteres")
     private String metrosCuadrados;
 
+    private Long idLocalidad;
+
     public EventoUpdateDTO() {
     }
 
@@ -40,4 +42,7 @@ public class EventoUpdateDTO {
     public String getMetrosCuadrados() { return metrosCuadrados; }
 
     public void setMetrosCuadrados(String metrosCuadrados) { this.metrosCuadrados = metrosCuadrados; }
+
+    public Long getIdLocalidad() { return idLocalidad; }
+    public void setIdLocalidad(Long idLocalidad) { this.idLocalidad = idLocalidad; }
 }

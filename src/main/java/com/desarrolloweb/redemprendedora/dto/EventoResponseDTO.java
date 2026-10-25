@@ -15,6 +15,10 @@ public class EventoResponseDTO {
     private boolean entradaGratuita;
     private String precioEntradaTexto;
     private String metrosCuadrados;
+    private Long idLocalidad;
+    private String nombreLocalidad;
+    private Long idUsuario;
+    private String nombreOrganizador;
 
     public EventoResponseDTO() {}
 
@@ -45,4 +49,16 @@ public class EventoResponseDTO {
     public String getMetrosCuadrados() { return metrosCuadrados; }
 
     public void setMetrosCuadrados(String metrosCuadrados) { this.metrosCuadrados = metrosCuadrados; }
+
+    public Long getIdLocalidad() { return idLocalidad; }
+    public void setIdLocalidad(Long idLocalidad) { this.idLocalidad = idLocalidad; }
+
+    public String getNombreLocalidad() { return nombreLocalidad; }
+    public void setNombreLocalidad(String nombreLocalidad) { this.nombreLocalidad = nombreLocalidad; }
+
+    public Long getIdUsuario() { return idUsuario; }
+    public void setIdUsuario(Long idUsuario) { this.idUsuario = idUsuario; }
+
+    public String getNombreOrganizador() { return nombreOrganizador; }
+    public void setNombreOrganizador(String nombreOrganizador) { this.nombreOrganizador = nombreOrganizador; }
 }
