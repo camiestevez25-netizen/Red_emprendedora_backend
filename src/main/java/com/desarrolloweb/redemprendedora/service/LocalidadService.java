@@ -62,7 +62,7 @@ public class LocalidadService {
             repository.delete(localidad);
         } catch (DataIntegrityViolationException e) {
             throw new IllegalArgumentException(
-                    "No se puede eliminar la localidad porque tiene usuarios asociados");
+                    "No se puede eliminar la localidad porque tiene usuarios o eventos asociados");
         }
     }
     private Localidad buscarEntidadPorId(Long id) {
