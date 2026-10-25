@@ -30,6 +30,14 @@ public class Evento {
     @Column(name = "metros_cuadrados", nullable = false, length = 25)
     private String metrosCuadrados;
 
+    @ManyToOne
+    @JoinColumn(name = "id_localidad")
+    private Localidad localidad;
+
+    @ManyToOne
+    @JoinColumn(name = "id_usuario")
+    private Usuario usuario;
+
     public Evento() {
     }
 
@@ -59,5 +67,11 @@ public class Evento {
     public void setMetrosCuadrados(String metrosCuadrados) {
         this.metrosCuadrados = metrosCuadrados;
     }
+
+    public Localidad getLocalidad() { return localidad; }
+    public void setLocalidad(Localidad localidad) { this.localidad = localidad; }
+
+    public Usuario getUsuario() { return usuario; }
+    public void setUsuario(Usuario usuario) { this.usuario = usuario; }
 
 }
