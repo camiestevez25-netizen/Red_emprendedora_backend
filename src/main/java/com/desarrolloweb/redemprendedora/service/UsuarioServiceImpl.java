@@ -10,6 +10,7 @@ import com.desarrolloweb.redemprendedora.repository.LocalidadRepository;
 import com.desarrolloweb.redemprendedora.repository.UsuarioRepository;
 import com.desarrolloweb.redemprendedora.repository.UsuarioRolRepository;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,11 +21,13 @@ public class UsuarioServiceImpl implements UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final LocalidadRepository localidadRepository;
     private final UsuarioRolRepository usuarioRolRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UsuarioServiceImpl(UsuarioRepository usuarioRepository, LocalidadRepository localidadRepository, UsuarioRolRepository usuarioRolRepository) {
+    public UsuarioServiceImpl(UsuarioRepository usuarioRepository, LocalidadRepository localidadRepository, UsuarioRolRepository usuarioRolRepository, PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
         this.localidadRepository = localidadRepository;
         this.usuarioRolRepository = usuarioRolRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -41,7 +44,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         Usuario usuario = new Usuario();
         mapearDtoAEntidad(dto, usuario);
         usuario.setEmail(email);
-        usuario.setContrasena(dto.getContrasena());
+        usuario.setContrasena(passwordEncoder.encode(dto.getContrasena()));
 
         return mapearEntidadADto(usuarioRepository.save(usuario));
     }
@@ -74,7 +77,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         mapearDtoAEntidad(dto, usuario);
         usuario.setEmail(email);
         if (dto.getContrasena() != null && !dto.getContrasena().isBlank()) {
-            usuario.setContrasena(dto.getContrasena());
+            usuario.setContrasena(passwordEncoder.encode(dto.getContrasena()));
         }
 
         return mapearEntidadADto(usuarioRepository.save(usuario));
@@ -116,6 +119,7 @@ public class UsuarioServiceImpl implements UsuarioService {
             usuario.setLocalidad(null);
         }
     }
+
     private UsuarioResponseDTO mapearEntidadADto(Usuario usuario) {
         UsuarioResponseDTO dto = new UsuarioResponseDTO();
         dto.setIdUsuario(usuario.getIdUsuario());

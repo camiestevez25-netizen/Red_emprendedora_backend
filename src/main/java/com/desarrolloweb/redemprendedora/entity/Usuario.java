@@ -23,7 +23,7 @@ public class Usuario {
     @Column(name = "direccion", length = 50, nullable = false)
     private String direccion;
 
-    @Column(name = "contrasena", length = 50, nullable = false)
+    @Column(name = "contrasena", length = 100, nullable = false)
     private String contrasena;
 
     @Column(name = "nombre_emprendimiento", length = 100)
