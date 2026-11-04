@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("/api/usuarios")
@@ -35,12 +36,16 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarioService.obtenerPorId(id));
     }
 
+    // Cada usuario solo puede editar su propia cuenta
     @PutMapping("/{id}")
+    @PreAuthorize("@seguridad.esMismoUsuario(#id, authentication)")
     public ResponseEntity<UsuarioResponseDTO> actualizar(@PathVariable Long id, @Valid @RequestBody UsuarioRequestDTO dto) {
         return ResponseEntity.ok(usuarioService.actualizar(id, dto));
     }
 
+    // Cada usuario solo puede eliminar su propia cuenta
     @DeleteMapping("/{id}")
+    @PreAuthorize("@seguridad.esMismoUsuario(#id, authentication)")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         usuarioService.eliminar(id);
         return ResponseEntity.noContent().build();

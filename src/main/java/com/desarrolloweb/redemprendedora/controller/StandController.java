@@ -12,7 +12,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 @RestController
 @RequestMapping("/api/stands")
 @RequiredArgsConstructor
@@ -21,6 +22,7 @@ public class StandController {
     private final StandService standService;
 
     @PostMapping
+    @PreAuthorize("@seguridad.esDuenioEvento(#dto.idEvento, authentication)")
     public ResponseEntity<StandResponseDTO> crearStand(@Valid @RequestBody StandRequestDTO dto) {
         return new ResponseEntity<>(standService.crearStand(dto), HttpStatus.CREATED);
     }
@@ -38,6 +40,7 @@ public class StandController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("@seguridad.esDuenioStand(#id, authentication) and @seguridad.esDuenioEvento(#dto.idEvento, authentication)")
     public ResponseEntity<StandResponseDTO> actualizarStand(
             @PathVariable Integer id,
             @Valid @RequestBody StandRequestDTO dto) {
@@ -45,6 +48,7 @@ public class StandController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("@seguridad.esDuenioStand(#id, authentication)")
     public ResponseEntity<Void> eliminarStand(@PathVariable Integer id) {
         standService.eliminarStand(id);
         return ResponseEntity.noContent().build();
@@ -59,15 +63,17 @@ public class StandController {
     public ResponseEntity<Long> contarStandsOcupados(@PathVariable Integer idEvento) {
         return ResponseEntity.ok(standService.contarStandsOcupadosPorEvento(idEvento));
     }
-    // PUT /api/stands/{id}/reservar?idUsuario=5
+
+    // PUT /api/stands/{id}/reservar  -> reserva a nombre del usuario logueado
     @PutMapping("/{id}/reservar")
     public ResponseEntity<StandResponseDTO> reservarStand(@PathVariable Integer id,
-                                                          @RequestParam Long idUsuario) {
-        return ResponseEntity.ok(standService.reservarStand(id, idUsuario));
+                                                          Authentication authentication) {
+        return ResponseEntity.ok(standService.reservarStand(id, authentication.getName()));
     }
 
     // PUT /api/stands/{id}/cancelar-reserva
     @PutMapping("/{id}/cancelar-reserva")
+    @PreAuthorize("@seguridad.puedeCancelarReserva(#id, authentication)")
     public ResponseEntity<StandResponseDTO> cancelarReserva(@PathVariable Integer id) {
         return ResponseEntity.ok(standService.cancelarReserva(id));
     }

@@ -8,6 +8,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 import java.util.Map;
@@ -23,8 +25,10 @@ public class EventoController {
     }
 
     @PostMapping
-    public ResponseEntity<EventoResponseDTO> crear(@Valid @RequestBody EventoRequestDTO dto) {
-        EventoResponseDTO creado = eventoService.crear(dto);
+    public ResponseEntity<EventoResponseDTO> crear(@Valid @RequestBody EventoRequestDTO dto,
+                                                   Authentication authentication) {
+        // El dueño del evento es el usuario logueado, no se elige en el body
+        EventoResponseDTO creado = eventoService.crear(dto, authentication.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(creado);
     }
 
@@ -42,6 +46,7 @@ public class EventoController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("@seguridad.esDuenioEvento(#id, authentication)")
     public ResponseEntity<EventoResponseDTO> actualizar(
             @PathVariable Integer id,
             @Valid @RequestBody EventoUpdateDTO dto) {
@@ -49,6 +54,7 @@ public class EventoController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("@seguridad.esDuenioEvento(#id, authentication)")
     public ResponseEntity<Map<String, String>> eliminar(@PathVariable Integer id) {
         String mensaje = eventoService.eliminar(id);
         return ResponseEntity.ok(Map.of("mensaje", mensaje));
