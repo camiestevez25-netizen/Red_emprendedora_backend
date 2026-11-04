@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.security.authentication.BadCredentialsException;
 
 
 @RestControllerAdvice
@@ -75,6 +76,12 @@ public class GlobalExceptionHandler {
         return construirRespuesta(HttpStatus.CONFLICT,
                 "La operación no se puede realizar porque viola una restricción de la base de datos "
                         + "(el registro está en uso o los datos están duplicados)");
+    }
+
+    // Login con email o contraseña incorrectos
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<Map<String, Object>> manejarCredencialesInvalidas(BadCredentialsException ex) {
+        return construirRespuesta(HttpStatus.UNAUTHORIZED, "Email o contraseña incorrectos");
     }
 
     private ResponseEntity<Map<String, Object>> construirRespuesta(HttpStatus status, String mensaje) {
