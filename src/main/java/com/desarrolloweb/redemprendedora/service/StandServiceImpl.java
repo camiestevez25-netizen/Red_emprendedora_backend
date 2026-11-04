@@ -180,7 +180,7 @@ public class StandServiceImpl implements StandService {
 
     @Override
     @Transactional
-    public StandResponseDTO reservarStand(Integer idStand, Long idUsuario) {
+    public StandResponseDTO reservarStand(Integer idStand, String emailUsuario) {
         // Busca el stand y lo bloquea hasta que termine la reserva (RNF-02)
         Stand stand = standRepository.findByIdParaReservar(idStand)
                 .orElseThrow(() -> new ResourceNotFoundException("Stand no encontrado con ID: " + idStand));
@@ -194,8 +194,9 @@ public class StandServiceImpl implements StandService {
             throw new BusinessRuleException("No se puede reservar un stand de un evento cancelado");
         }
 
-        Usuario usuario = usuarioRepository.findById(idUsuario)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con ID: " + idUsuario));
+        // El usuario que reserva es el logueado (su email sale del token JWT)
+        Usuario usuario = usuarioRepository.findByEmailIgnoreCase(emailUsuario)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con email: " + emailUsuario));
 
         stand.setUsuario(usuario);
         stand.setEstadoStand(false); // false = ocupado
