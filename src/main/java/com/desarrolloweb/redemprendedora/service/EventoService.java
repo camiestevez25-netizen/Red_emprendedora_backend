@@ -55,7 +55,7 @@ public class EventoService {
         this.usuarioRepository = usuarioRepository;
     }
 
-    public EventoResponseDTO crear(EventoRequestDTO dto) {
+    public EventoResponseDTO crear(EventoRequestDTO dto, String emailOrganizador) {
         LocalDate inicio = parsearFecha(dto.getFechaInicio(), "fechaInicio");
         LocalDate fin = parsearFecha(dto.getFechaFin(), "fechaFin");
         validarRango(inicio, fin);
@@ -67,7 +67,7 @@ public class EventoService {
         evento.setEstado(EstadoEvento.ACTIVO.getValor());
 
         evento.setLocalidad(buscarLocalidad(dto.getIdLocalidad()));
-        evento.setUsuario(buscarOrganizador(dto.getIdUsuario()));
+        evento.setUsuario(buscarOrganizador(emailOrganizador);
 
         BigDecimal precio = (dto.getPrecioEntrada() != null) ? dto.getPrecioEntrada() : BigDecimal.ZERO;
         evento.setPrecioEntrada(precio);
@@ -112,12 +112,12 @@ public class EventoService {
     }
 
     // Busca el usuario y controla que tenga rol Organizador (RF-02)
-    private Usuario buscarOrganizador(Long idUsuario) {
-        Usuario usuario = usuarioRepository.findById(idUsuario)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + idUsuario));
+    private Usuario buscarOrganizador(String email) {
+        Usuario usuario = usuarioRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con email: " + email));
 
         if (usuario.getUsuarioRol() == null || usuario.getUsuarioRol().getNombre() != RolEnum.ORGANIZADOR) {
-            throw new OperacionInvalidadException("El usuario " + idUsuario + " no es Organizador: solo un Organizador puede crear eventos");
+            throw new OperacionInvalidadException("Solo un Organizador puede crear eventos");
         }
         return usuario;
     }

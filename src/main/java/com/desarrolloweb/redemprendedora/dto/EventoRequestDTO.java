@@ -27,9 +27,6 @@ public class EventoRequestDTO {
     @NotNull(message = "La localidad es obligatoria")
     private Long idLocalidad;
 
-    @NotNull(message = "El organizador es obligatorio")
-    private Long idUsuario;
-
     public EventoRequestDTO() {}
 
     public String getNombre() { return nombre; }
@@ -50,6 +47,4 @@ public class EventoRequestDTO {
     public Long getIdLocalidad() { return idLocalidad; }
     public void setIdLocalidad(Long idLocalidad) { this.idLocalidad = idLocalidad; }
 
-    public Long getIdUsuario() { return idUsuario; }
-    public void setIdUsuario(Long idUsuario) { this.idUsuario = idUsuario; }
 }

@@ -24,7 +24,7 @@ public interface StandService {
 
     boolean existeStandConNumeroEnEvento(Integer idEvento, Integer numeroStand);
 
-    StandResponseDTO reservarStand(Integer idStand, Long idUsuario);
+    StandResponseDTO reservarStand(Integer idStand, String emailUsuario);
 
     StandResponseDTO cancelarReserva(Integer idStand);
 }
