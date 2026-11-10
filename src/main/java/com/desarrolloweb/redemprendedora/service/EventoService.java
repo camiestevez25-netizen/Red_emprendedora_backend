@@ -67,7 +67,7 @@ public class EventoService {
         evento.setEstado(EstadoEvento.ACTIVO.getValor());
 
         evento.setLocalidad(buscarLocalidad(dto.getIdLocalidad()));
-        evento.setUsuario(buscarOrganizador(emailOrganizador);
+        evento.setUsuario(buscarOrganizador(emailOrganizador));
 
         BigDecimal precio = (dto.getPrecioEntrada() != null) ? dto.getPrecioEntrada() : BigDecimal.ZERO;
         evento.setPrecioEntrada(precio);
