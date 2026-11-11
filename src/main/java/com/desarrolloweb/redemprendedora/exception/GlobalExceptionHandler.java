@@ -63,8 +63,7 @@ public class GlobalExceptionHandler {
                 "El valor '" + ex.getValue() + "' no es válido para el parámetro '" + ex.getName() + "'");
     }
 
-    // Falta un parámetro obligatorio (ej: /reservar sin ?idUsuario=)
-    @ExceptionHandler(MissingServletRequestParameterException.class)
+    // Falta un parámetro obligatorio en la URL (un @RequestParam requerido que no se mandó)    @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<Map<String, Object>> manejarParametroFaltante(MissingServletRequestParameterException ex) {
         return construirRespuesta(HttpStatus.BAD_REQUEST,
                 "Falta el parámetro obligatorio '" + ex.getParameterName() + "'");

@@ -22,7 +22,4 @@ public class StandRequestDTO {
     @NotNull(message = "El ID del evento es obligatorio")
     @Positive(message = "El ID del evento debe ser positivo")
     private Integer idEvento;
-
-    @Positive(message = "El ID del usuario debe ser positivo")
-    private Integer idUsuario;
 }

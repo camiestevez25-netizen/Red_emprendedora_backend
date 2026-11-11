@@ -48,6 +48,11 @@ public class SecurityConfig {
                         .requestMatchers("/error").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/usuarios").permitAll()
+                        // Cualquier visitante puede ver ferias, localidad y stands (solo lectura)
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/eventos", "/api/eventos/**",
+                                "/api/localidades", "/api/localidades/**",
+                                "/api/stands", "/api/stands/**").permitAll()
                         .requestMatchers(HttpMethod.PUT,
                                 "/api/stands/*/reservar",
                                 "/api/stands/*/cancelar-reserva")
