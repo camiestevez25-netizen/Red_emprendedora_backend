@@ -49,9 +49,10 @@ public class AuthController {
         respuesta.setIdUsuario(usuario.getIdUsuario());
         respuesta.setNombre(usuario.getNombre());
         respuesta.setEmail(usuario.getEmail());
-        if (usuario.getUsuarioRol() != null) {
-            respuesta.setRol(usuario.getUsuarioRol().getNombre().name());
-        }
+        respuesta.setRoles(usuario.getRoles().stream()
+                .map(rol -> rol.getNombre().name())
+                .sorted()
+                .toList());
         return ResponseEntity.ok(respuesta);
     }
 }

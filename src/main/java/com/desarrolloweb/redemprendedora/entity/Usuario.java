@@ -1,6 +1,10 @@
 package com.desarrolloweb.redemprendedora.entity;
 
+import com.desarrolloweb.redemprendedora.enums.RolEnum;
 import jakarta.persistence.*;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "usuario")
@@ -35,9 +39,13 @@ public class Usuario {
     @Column(name = "instagram", length = 100)
     private String instagram;
 
-    @ManyToOne
-    @JoinColumn(name = "id_usuario_rol")
-    private UsuarioRol usuarioRol;
+    // Un usuario puede ser ORGANIZADOR, EMPRENDEDOR o las dos cosas.
+    // EAGER porque los roles se leen fuera de una transaccion (login y filtro JWT)
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "usuario_x_rol",
+    joinColumns = @JoinColumn(name = "id_usuario"),
+    inverseJoinColumns = @JoinColumn(name = "id_usuario_rol"))
+    private Set<UsuarioRol> roles = new HashSet<>();
 
     @ManyToOne
     @JoinColumn(name = "id_localidad")
@@ -119,12 +127,11 @@ public class Usuario {
         this.instagram = instagram;
     }
 
-    public UsuarioRol getUsuarioRol() {
-        return usuarioRol;
-    }
+    public Set<UsuarioRol> getRoles() { return roles; }
+    public void setRoles(Set<UsuarioRol> roles) { this.roles = roles; }
 
-    public void setUsuarioRol(UsuarioRol usuarioRol) {
-        this.usuarioRol = usuarioRol;
+    public boolean tieneRol(RolEnum rol) {
+        return roles.stream().anyMatch(r -> r.getNombre() == rol);
     }
 
     public Localidad getLocalidad() { return localidad; }

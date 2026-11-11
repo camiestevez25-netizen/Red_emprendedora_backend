@@ -1,5 +1,7 @@
 package com.desarrolloweb.redemprendedora.dto;
 
+import java.util.List;
+
 //Lo que devuelve el login: el token y los datos básicos que necesita el front
 public class LoginResponseDTO {
     private String token;
@@ -8,7 +10,7 @@ public class LoginResponseDTO {
     private Long idUsuario;
     private String nombre;
     private String email;
-    private String rol;
+    private List<String> roles;
 
     public LoginResponseDTO() {}
 
@@ -30,6 +32,6 @@ public class LoginResponseDTO {
     public String getEmail() { return email; }
     public void setEmail(String email) {this.email = email; }
 
-    public String getRol() { return rol; }
-    public void setRol(String rol) { this.rol = rol; }
+    public List<String> getRoles() { return roles; }
+    public void setRoles(List<String> roles) { this.roles = roles; }
 }

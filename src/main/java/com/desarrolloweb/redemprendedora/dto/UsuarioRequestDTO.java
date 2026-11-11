@@ -1,8 +1,13 @@
 package com.desarrolloweb.redemprendedora.dto;
 
+import com.desarrolloweb.redemprendedora.enums.RolEnum;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+
+import java.util.Set;
 
 public class UsuarioRequestDTO {
     @NotBlank(message = "El nombre es obligatorio")
@@ -34,7 +39,10 @@ public class UsuarioRequestDTO {
     @Size(max = 100, message = "El instagram no puede superar los 100 caracteres")
     private String instagram;
 
-    private Long idUsuarioRol;
+    @NotEmpty(message = "Tenés que elegir al menos un rol")
+    private Set<RolEnum> roles;
+
+    @NotNull(message = "La localidad es obligatoria")
     private Long idLocalidad;
 
     // Getters y Setters
@@ -62,8 +70,8 @@ public class UsuarioRequestDTO {
     public String getInstagram() { return instagram; }
     public void setInstagram(String instagram) { this.instagram = instagram; }
 
-    public Long getIdUsuarioRol() { return idUsuarioRol; }
-    public void setIdUsuarioRol(Long idUsuarioRol) { this.idUsuarioRol = idUsuarioRol; }
+    public Set<RolEnum> getRoles() { return roles; }
+    public void setRoles(Set<RolEnum> roles) { this.roles = roles; }
 
     public Long getIdLocalidad() { return idLocalidad; }
     public void setIdLocalidad(Long idLocalidad) { this.idLocalidad = idLocalidad; }
