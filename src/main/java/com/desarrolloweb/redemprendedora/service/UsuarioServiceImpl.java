@@ -5,6 +5,7 @@ import com.desarrolloweb.redemprendedora.dto.UsuarioResponseDTO;
 import com.desarrolloweb.redemprendedora.entity.Localidad;
 import com.desarrolloweb.redemprendedora.entity.Usuario;
 import com.desarrolloweb.redemprendedora.entity.UsuarioRol;
+import com.desarrolloweb.redemprendedora.enums.RolEnum;
 import com.desarrolloweb.redemprendedora.exception.ResourceNotFoundException;
 import com.desarrolloweb.redemprendedora.repository.LocalidadRepository;
 import com.desarrolloweb.redemprendedora.repository.UsuarioRepository;
@@ -102,22 +103,18 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuario.setNombreEmprendimiento(dto.getNombreEmprendimiento());
         usuario.setTipoEmprendimiento(dto.getTipoEmprendimiento());
         usuario.setInstagram(dto.getInstagram());
-        if (dto.getIdUsuarioRol() != null) {
-            UsuarioRol rol = usuarioRolRepository.findById(dto.getIdUsuarioRol())
+        // Roles y localidad son obligatorios (lo valida el DTO), nunca quedan en null
+        usuario.getRoles().clear();
+        for (RolEnum nombreRol : dto.getRoles()) {
+            UsuarioRol rol = usuarioRolRepository.findByNombre(nombreRol)
                     .orElseThrow(() -> new ResourceNotFoundException(
-                            "Rol no encontrado con id: " + dto.getIdUsuarioRol()));
-            usuario.setUsuarioRol(rol);
-        } else {
-            usuario.setUsuarioRol(null);
+                            "Rol no encontrado: " + nombreRol));
+            usuario.getRoles().add(rol);
         }
-        if (dto.getIdLocalidad() != null) {
-            Localidad localidad = localidadRepository.findById(dto.getIdLocalidad())
-                    .orElseThrow(() -> new ResourceNotFoundException(
-                            "Localidad no encontrada con id: " + dto.getIdLocalidad()));
-            usuario.setLocalidad(localidad);
-        } else {
-            usuario.setLocalidad(null);
-        }
+        Localidad localidad = localidadRepository.findById(dto.getIdLocalidad())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Localidad no encontrada con id: " + dto.getIdLocalidad()));
+        usuario.setLocalidad(localidad);
     }
 
     private UsuarioResponseDTO mapearEntidadADto(Usuario usuario) {
@@ -130,9 +127,10 @@ public class UsuarioServiceImpl implements UsuarioService {
         dto.setNombreEmprendimiento(usuario.getNombreEmprendimiento());
         dto.setTipoEmprendimiento(usuario.getTipoEmprendimiento());
         dto.setInstagram(usuario.getInstagram());
-        if (usuario.getUsuarioRol() != null) {
-            dto.setIdUsuarioRol(usuario.getUsuarioRol().getIdUsuarioRol());
-        }
+        dto.setRoles(usuario.getRoles().stream()
+                .map(rol -> rol.getNombre().name())
+                .sorted()
+                .toList());
         if (usuario.getLocalidad() != null) {
             dto.setIdLocalidad(usuario.getLocalidad().getIdLocalidad());
             dto.setNombreLocalidad(usuario.getLocalidad().getNombreLocalidad());

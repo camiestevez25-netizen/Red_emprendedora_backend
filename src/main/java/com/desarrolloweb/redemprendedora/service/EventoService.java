@@ -116,7 +116,7 @@ public class EventoService {
         Usuario usuario = usuarioRepository.findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con email: " + email));
 
-        if (usuario.getUsuarioRol() == null || usuario.getUsuarioRol().getNombre() != RolEnum.ORGANIZADOR) {
+        if (!usuario.tieneRol(RolEnum.ORGANIZADOR)) {
             throw new OperacionInvalidadException("Solo un Organizador puede crear eventos");
         }
         return usuario;

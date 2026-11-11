@@ -1,5 +1,7 @@
 package com.desarrolloweb.redemprendedora.dto;
 
+import java.util.List;
+
 public class UsuarioResponseDTO {
     private Long idUsuario;
     private String nombre;
@@ -9,7 +11,7 @@ public class UsuarioResponseDTO {
     private String nombreEmprendimiento;
     private String tipoEmprendimiento;
     private String instagram;
-    private Long idUsuarioRol;
+    private List<String> roles;
     private Long idLocalidad;
     private String nombreLocalidad;
 
@@ -41,8 +43,8 @@ public class UsuarioResponseDTO {
     public String getInstagram() { return instagram; }
     public void setInstagram(String instagram) { this.instagram = instagram; }
 
-    public Long getIdUsuarioRol() { return idUsuarioRol; }
-    public void setIdUsuarioRol(Long idUsuarioRol) { this.idUsuarioRol = idUsuarioRol; }
+    public List<String> getRoles() { return roles; }
+    public void setRoles(List<String> roles) { this.roles = roles; }
 
     public Long getIdLocalidad() { return idLocalidad; }
     public void setIdLocalidad(Long idLocalidad) { this.idLocalidad = idLocalidad; }

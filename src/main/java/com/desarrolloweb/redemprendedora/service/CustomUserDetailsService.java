@@ -27,11 +27,10 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException(
                         "Usuario no encontrado con email: " + email));
 
-        // Sin rol: puede iniciar sesión pero solo leer
-        List<GrantedAuthority> autoridades = usuario.getUsuarioRol() == null
-                ? List.of()
-                : List.of(new SimpleGrantedAuthority(
-                "ROLE_" + usuario.getUsuarioRol().getNombre().name()));
+        // Un permiso "ROLE_..." por cada rol que tenga el usuario
+        List<GrantedAuthority> autoridades = usuario.getRoles().stream()
+                .map(rol -> (GrantedAuthority) new SimpleGrantedAuthority("ROLE_" + rol.getNombre().name()))
+                .toList();
 
         return new User(usuario.getEmail(), usuario.getContrasena(), autoridades);
     }
